@@ -29,11 +29,13 @@
         private void InitializeComponent()
         {
             this.generate = new System.Windows.Forms.Button();
+            this.exportText = new System.Windows.Forms.Button();
+            this.exportImage = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // generate
             // 
-            this.generate.Location = new System.Drawing.Point(332, 180);
+            this.generate.Location = new System.Drawing.Point(665, 785);
             this.generate.Name = "generate";
             this.generate.Size = new System.Drawing.Size(75, 23);
             this.generate.TabIndex = 0;
@@ -41,21 +43,46 @@
             this.generate.UseVisualStyleBackColor = true;
             this.generate.Click += new System.EventHandler(this.generate_Click);
             // 
+            // exportText
+            // 
+            this.exportText.AutoSize = true;
+            this.exportText.Location = new System.Drawing.Point(287, 784);
+            this.exportText.Name = "exportText";
+            this.exportText.Size = new System.Drawing.Size(90, 23);
+            this.exportText.TabIndex = 1;
+            this.exportText.Text = "Export Text File";
+            this.exportText.UseVisualStyleBackColor = true;
+            // 
+            // exportImage
+            // 
+            this.exportImage.AutoSize = true;
+            this.exportImage.Location = new System.Drawing.Point(1079, 783);
+            this.exportImage.Name = "exportImage";
+            this.exportImage.Size = new System.Drawing.Size(79, 23);
+            this.exportImage.TabIndex = 2;
+            this.exportImage.Text = "Export Image";
+            this.exportImage.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1464, 861);
+            this.Controls.Add(this.exportImage);
+            this.Controls.Add(this.exportText);
             this.Controls.Add(this.generate);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.Button generate;
+        private System.Windows.Forms.Button exportText;
+        private System.Windows.Forms.Button exportImage;
     }
 }
 
