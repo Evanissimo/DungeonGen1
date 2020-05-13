@@ -74,10 +74,10 @@
     <Compile Include="generator.cs" />
     <Compile Include="magicItems.cs" />
     <Compile Include="mapSection.cs" />
+    <Compile Include="mapTile.cs" />
     <Compile Include="placeableEntity.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="rectangleRoom.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
