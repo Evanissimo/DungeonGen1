@@ -14,19 +14,42 @@ namespace DungeonGen1
         Random lolXD = new Random();
         public mapTile[,] mapDungeon()
         {
-            int width = lolXD.Next(5, 50);
-            int height = lolXD.Next(5, 50);
+            //int width = lolXD.Next(5, 50);
+            //int height = lolXD.Next(5, 50);
+            int width = 10;
+            int height = 20;
             mapTile[,] toReturn = new mapTile[width, height];
             for (int x = 0; x < toReturn.GetLength(0); x++)
+            {
                 for (int y = 0; y < toReturn.GetLength(1); y++)
                 {
                     toReturn[x, y] = new mapTile();
-                    toReturn[x, y].exists = true;
+                    toReturn[x, y].exists = 1;
                     toReturn[x, y].contents = ' ';
                 }
+            }
+            toReturn[1, 10].contents = '7';
             return toReturn;
         }
 
+        /// <summary>
+        /// This method assumes the rectangle room has been determined to be a valid room not breaking into other rooms.
+        /// </summary>
+        /// <param name="currMap">The map as it is before drawing this room onto it</param>
+        /// <param name="room">The dungeonRoom object to draw</param>
+        /// <returns></returns>
+        private mapTile[ , ]placeARectangleRoom(mapTile[,] currMap, dungeonRoom room)
+        {
+            // currMap[room.upperleftX, room.upperleftY]
+            for(int y = room.upperleftY; y <= room.upperleftY + room.height; y++)
+            {
+                for(int x = room.upperleftX; x <= room.upperleftX + room.width; x++ )
+                {
+
+                }
+            }
+            return null;
+        }
 
         /// <summary>
         ///  This method creates a bitmap from a 2D array of maptiles
@@ -47,7 +70,7 @@ namespace DungeonGen1
             {
                 for (int k = 0; k < dungeon.GetLength(1); k++)
                 {
-                    if (dungeon[i, k].exists == true)
+                    if (dungeon[i, k].exists == 1)
                     {
                         canvas.DrawRect(originX, originY, squareSize, squareSize, paint);
                         // text uses the origin at bottom left, so we must shift it down a square to make it into the square we want
@@ -67,5 +90,6 @@ namespace DungeonGen1
             return bem;
 
         }
+         
     }
 }

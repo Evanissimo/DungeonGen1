@@ -73,7 +73,6 @@
     </Compile>
     <Compile Include="generator.cs" />
     <Compile Include="magicItems.cs" />
-    <Compile Include="mapSection.cs" />
     <Compile Include="mapTile.cs" />
     <Compile Include="placeableEntity.cs" />
     <Compile Include="Program.cs" />

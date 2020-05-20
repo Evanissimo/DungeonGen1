@@ -8,9 +8,12 @@ namespace DungeonGen1
 {
     class dungeonRoom
     {
-       private int width
+
+       public int upperleftX { get; set; }
+       public int upperleftY { get; set; }
+       public int width
         { get; set; }
-       private int height
+       public int height
         { get; set; }
     }
 }
