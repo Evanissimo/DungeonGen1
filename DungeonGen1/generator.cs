@@ -11,14 +11,19 @@ namespace DungeonGen1
 {
     class generator
     {
+        List<Point> listOfEmptyCoords;
         Random lolXD = new Random();
-        public mapTile[,] mapDungeon()
+        int bufferValue;
+        List<magicItems> allItems;
+        List<magicItems> selectedItems;
+        public mapTile[,] testMap(int width, int height)
         {
             //int width = lolXD.Next(5, 50);
             //int height = lolXD.Next(5, 50);
-            int width = 10;
-            int height = 20;
+            
+            
             mapTile[,] toReturn = new mapTile[width, height];
+             
             for (int x = 0; x < toReturn.GetLength(0); x++)
             {
                 for (int y = 0; y < toReturn.GetLength(1); y++)
@@ -26,12 +31,94 @@ namespace DungeonGen1
                     toReturn[x, y] = new mapTile();
                     toReturn[x, y].exists = 1;
                     toReturn[x, y].contents = ' ';
+                    // if statement right here test for buffer
+                    listOfEmptyCoords.Add(new Point(x,y));
                 }
             }
-            toReturn[1, 10].contents = '7';
+            // toReturn[1, 9].contents = '7';
+            // remove edges from the list of empty coords
+            for(int x = toReturn.GetLength(0)- bufferValue; x<toReturn.GetLength(0); x++ )
+            {
+                for(int y = toReturn.GetLength(1) - bufferValue; y < toReturn.GetLength(1); y++)
+                {
+                    listOfEmptyCoords.Remove(new Point(x, y));
+                }
+            }
+            // add edge indicator to bottom of grid
+            for (int x = 0; x < toReturn.GetLength(0); x++)
+                toReturn[x, toReturn.GetLength(1) - 1].exists = 2;
+            for (int y = 0; y < toReturn.GetLength(1); y++)
+                toReturn[y, toReturn.GetLength(0) - 1].exists = 2;
             return toReturn;
+            
         }
 
+        public mapTile[,] planRooms(mapTile[,] map, int numberOfRooms)
+        {
+            
+            // call roomCreator in aloop equal to numrooms.
+            for(int i = 0; i<numberOfRooms; i++)
+            {
+                dungeonRoom tempRoom = new dungeonRoom();
+                tempRoom = candidateCreator(map);
+                // if temp room returns null or exception or whatever, then we need to either move to next room or stop creating rooms.
+                // we may also need to only try to place smaller rooms.
+                if (tempRoom.height != 0)
+                {
+                    map = placeARectangleRoom(map, tempRoom);
+                }
+            }
+            // after room is validated, call placeARectangle room in same loop, passing validated room as argument
+            return null;
+        }
+        /// <summary>
+        /// This method creates a candidate room and calls the validator on it
+        /// </summary>
+        /// <param name="currMap"></param>
+        /// <returns></returns>
+        private dungeonRoom candidateCreator(mapTile [,] currMap)
+        {
+            // this allows us to understand the buffer values.
+            int totalXLength = currMap.GetLength(0);
+            int totalYLength = currMap.GetLength(1);
+            // pick random origin point from list of origin points.
+            Shuffle(listOfEmptyCoords);
+            Point start =listOfEmptyCoords[0];
+            // pick random width and height that does not push room through edge
+            int widthRoom = lolXD.Next(bufferValue, totalXLength - start.X+1);
+            int heightRoom = lolXD.Next(bufferValue, totalYLength - start.Y+1);
+
+           
+            dungeonRoom toTry = new dungeonRoom(start.X, start.Y, widthRoom, heightRoom);
+
+            dungeonRoom result = validator(toTry, currMap, 0);
+
+            return result;
+        }
+        private dungeonRoom validator(dungeonRoom toTry, mapTile [,] currMap, int levelsDeep)
+        {
+            for (int y = toTry.upperleftY; y< toTry.upperleftY+ toTry.height; y++)
+            {
+                for (int x = toTry.upperleftY; x < toTry.upperleftX + toTry.width; x++)
+                {
+                    if(currMap[x,y].exists == 2 || currMap[x,y].exists == 1)
+                    {
+                        levelsDeep++;
+                        if (levelsDeep < listOfEmptyCoords.Count)
+                        {
+                            toTry.upperleftX = listOfEmptyCoords[levelsDeep].X;
+                            toTry.upperleftY = listOfEmptyCoords[levelsDeep].Y;
+                            toTry = validator(toTry, currMap, levelsDeep);
+                        }
+                        else
+                        {
+                            throw new System.Exception("Room cannot be made with these dimensions");
+                        }
+                    }
+                }
+            }
+            return toTry;
+        }
         /// <summary>
         /// This method assumes the rectangle room has been determined to be a valid room not breaking into other rooms.
         /// </summary>
@@ -40,15 +127,29 @@ namespace DungeonGen1
         /// <returns></returns>
         private mapTile[ , ]placeARectangleRoom(mapTile[,] currMap, dungeonRoom room)
         {
-            // currMap[room.upperleftX, room.upperleftY]
-            for(int y = room.upperleftY; y <= room.upperleftY + room.height; y++)
+            // this point will be removed from the list of empty coordinates
+            Point toRemove = new Point(0,0);
+            // first runthrough makes adjacencies
+            for(int y = room.upperleftY-1; y <= room.upperleftY + room.height + 1; y++)
             {
-                for(int x = room.upperleftX; x <= room.upperleftX + room.width; x++ )
+                for(int x = room.upperleftX-1; x <= room.upperleftX + room.width + 1; x++ )
                 {
-
+                    currMap[x, y].exists = 2;
+                    toRemove.X = x;
+                    toRemove.Y = y;
+                    // all of the mapTiles in the room are now invalid room origin points
+                    listOfEmptyCoords.Remove(toRemove);
                 }
             }
-            return null;
+            // second runthrough fills in inner part
+            for (int y = room.upperleftY; y <= room.upperleftY + room.height; y++)
+            {
+                for (int x = room.upperleftX; x <= room.upperleftX + room.width; x++)
+                {
+                    currMap[x, y].exists = 0;
+                }
+            }
+            return currMap;
         }
 
         /// <summary>
@@ -62,20 +163,20 @@ namespace DungeonGen1
             int originX = 5;
             int originY = 5;
 
-            SKImageInfo todd = new SKImageInfo(dungeon.GetLength(1)*squareSize+50, dungeon.GetLength(0)*squareSize+50);
+            SKImageInfo todd = new SKImageInfo(dungeon.GetLength(0)*squareSize+50, dungeon.GetLength(1)*squareSize+50);
             SKSurface surface = SKSurface.Create(todd);
             SKCanvas canvas = surface.Canvas;
             SKPaint paint = new SKPaint { Color = SKColors.Black, StrokeWidth = 1, Style = SKPaintStyle.Stroke, TextSize = 16 };
-            for (int i = 0; i < dungeon.GetLength(0); i++)
+            for (int i = 0; i < dungeon.GetLength(1); i++)
             {
-                for (int k = 0; k < dungeon.GetLength(1); k++)
+                for (int k = 0; k < dungeon.GetLength(0); k++)
                 {
-                    if (dungeon[i, k].exists == 1)
+                    if (dungeon[k, i].exists == 1)
                     {
                         canvas.DrawRect(originX, originY, squareSize, squareSize, paint);
                         // text uses the origin at bottom left, so we must shift it down a square to make it into the square we want
 
-                        canvas.DrawText(dungeon[i, k].contents.ToString(), originX, originY + squareSize, paint);
+                        canvas.DrawText(dungeon[k, i].contents.ToString(), originX, originY + squareSize, paint);
                     }
                     originX += squareSize;
                 }
@@ -90,6 +191,31 @@ namespace DungeonGen1
             return bem;
 
         }
-         
+        public void Shuffle<Point>( List<Point> list)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = lolXD.Next(n + 1);
+                Point value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+
+        public void MagicItemReader()
+        {
+            string[] lines = File.ReadAllLines("magicItems.txt");
+            foreach(string s in lines)
+            {
+                magicItems toAdd = new magicItems(s);
+                allItems.Add(toAdd);
+            }
+        }
+        public void MagicItemSelector()
+        {
+            
+        }
     }
 }
