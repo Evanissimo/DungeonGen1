@@ -20,8 +20,8 @@ namespace DungeonGen1
         {
             //int width = lolXD.Next(5, 50);
             //int height = lolXD.Next(5, 50);
-            
-            
+
+            listOfEmptyCoords = new List<Point>();
             mapTile[,] toReturn = new mapTile[width, height];
              
             for (int x = 0; x < toReturn.GetLength(0); x++)
@@ -29,10 +29,14 @@ namespace DungeonGen1
                 for (int y = 0; y < toReturn.GetLength(1); y++)
                 {
                     toReturn[x, y] = new mapTile();
-                    toReturn[x, y].exists = 1;
+                    toReturn[x, y].exists = 0;
                     toReturn[x, y].contents = ' ';
+                    Point tooAdd = new Point(x, y);
                     // if statement right here test for buffer
-                    listOfEmptyCoords.Add(new Point(x,y));
+                    if (x < width- 3 && y < height - 3 && x > 1 && y > 1) 
+                    {
+                        listOfEmptyCoords.Add(tooAdd);
+                    }
                 }
             }
             // toReturn[1, 9].contents = '7';
@@ -69,7 +73,7 @@ namespace DungeonGen1
                 }
             }
             // after room is validated, call placeARectangle room in same loop, passing validated room as argument
-            return null;
+            return map;
         }
         /// <summary>
         /// This method creates a candidate room and calls the validator on it
@@ -85,8 +89,8 @@ namespace DungeonGen1
             Shuffle(listOfEmptyCoords);
             Point start =listOfEmptyCoords[0];
             // pick random width and height that does not push room through edge
-            int widthRoom = lolXD.Next(bufferValue, totalXLength - start.X+1);
-            int heightRoom = lolXD.Next(bufferValue, totalYLength - start.Y+1);
+            int widthRoom = lolXD.Next(bufferValue, 10);
+            int heightRoom = lolXD.Next(bufferValue, 10);
 
            
             dungeonRoom toTry = new dungeonRoom(start.X, start.Y, widthRoom, heightRoom);
@@ -112,7 +116,8 @@ namespace DungeonGen1
                         }
                         else
                         {
-                            throw new System.Exception("Room cannot be made with these dimensions");
+                           toTry.height = 0;
+                           toTry.width = 0;
                         }
                     }
                 }
@@ -134,11 +139,14 @@ namespace DungeonGen1
             {
                 for(int x = room.upperleftX-1; x <= room.upperleftX + room.width + 1; x++ )
                 {
-                    currMap[x, y].exists = 2;
-                    toRemove.X = x;
-                    toRemove.Y = y;
-                    // all of the mapTiles in the room are now invalid room origin points
-                    listOfEmptyCoords.Remove(toRemove);
+                    if (isInRange(x, y, currMap))
+                    {
+                        currMap[x, y].exists = 2;
+                        toRemove.X = x;
+                        toRemove.Y = y;
+                        // all of the mapTiles in the room are now invalid room origin points
+                        listOfEmptyCoords.Remove(toRemove);
+                    }
                 }
             }
             // second runthrough fills in inner part
@@ -146,7 +154,7 @@ namespace DungeonGen1
             {
                 for (int x = room.upperleftX; x <= room.upperleftX + room.width; x++)
                 {
-                    currMap[x, y].exists = 0;
+                    currMap[x, y].exists = 1;
                 }
             }
             return currMap;
@@ -204,6 +212,15 @@ namespace DungeonGen1
             }
         }
 
+        private bool isInRange(int x, int y, mapTile[,] map)
+        {
+            if (x < map.GetLength(0) && x > 0 && y < map.GetLength(1) && y > 0)
+            {
+                return true;
+            }
+            else return false;
+        }
+
         public void MagicItemReader()
         {
             string[] lines = File.ReadAllLines("magicItems.txt");
@@ -217,5 +234,7 @@ namespace DungeonGen1
         {
             
         }
+
+
     }
 }

@@ -18,6 +18,7 @@ namespace DungeonGen1
         private Bitmap bmp;
         private int tileSize;
         private mapTile[,] dungeonFinal;
+
         public Form1()
         {
             InitializeComponent();
@@ -27,7 +28,9 @@ namespace DungeonGen1
         {
 
             dunGen = new generator();
-            dungeonFinal = dunGen.testMap();
+            
+            dungeonFinal = dunGen.testMap(60,60);
+            dungeonFinal = dunGen.planRooms(dungeonFinal, 5);
             Bitmap finalBitmap = dunGen.Draw(dungeonFinal, 20);
             pictureBox1.Image = finalBitmap;
         }
