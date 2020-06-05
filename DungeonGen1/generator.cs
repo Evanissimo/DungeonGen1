@@ -14,13 +14,20 @@ namespace DungeonGen1
         List<Point> listOfEmptyCoords;
         Random lolXD = new Random();
         int bufferValue;
+        List<dungeonRoom> unconnectedRooms;
         List<magicItems> allItems;
         List<magicItems> selectedItems;
-        public mapTile[,] testMap(int width, int height)
+        public generator()
+        {
+            unconnectedRooms = new List<dungeonRoom>();
+            allItems = new List<magicItems>();
+            selectedItems = new List<magicItems>();
+        }
+        public mapTile[,] testMap(int width, int height, int buffer)
         {
             //int width = lolXD.Next(5, 50);
             //int height = lolXD.Next(5, 50);
-
+            bufferValue = buffer;
             listOfEmptyCoords = new List<Point>();
             mapTile[,] toReturn = new mapTile[width, height];
              
@@ -52,7 +59,7 @@ namespace DungeonGen1
             for (int x = 0; x < toReturn.GetLength(0); x++)
                 toReturn[x, toReturn.GetLength(1) - 1].exists = 2;
             for (int y = 0; y < toReturn.GetLength(1); y++)
-                toReturn[y, toReturn.GetLength(0) - 1].exists = 2;
+                toReturn[toReturn.GetLength(0) - 1, y ].exists = 2;
             return toReturn;
             
         }
@@ -99,13 +106,33 @@ namespace DungeonGen1
 
             return result;
         }
+        //gross clipping
+        // 4 rooms is a's left edge to the left of b's right edge, if it is, is a's 
         private dungeonRoom validator(dungeonRoom toTry, mapTile [,] currMap, int levelsDeep)
         {
-            for (int y = toTry.upperleftY; y< toTry.upperleftY+ toTry.height; y++)
+            if(toTry.upperleftY+ toTry.height>= currMap.GetLength(1) || toTry.upperleftX + toTry.width >= currMap.GetLength(0))
             {
-                for (int x = toTry.upperleftY; x < toTry.upperleftX + toTry.width; x++)
+                levelsDeep++;
+                if (levelsDeep < listOfEmptyCoords.Count)
                 {
-                    if(currMap[x,y].exists == 2 || currMap[x,y].exists == 1)
+                    toTry.upperleftX = listOfEmptyCoords[levelsDeep].X;
+                    toTry.upperleftY = listOfEmptyCoords[levelsDeep].Y;
+                    toTry = validator(toTry, currMap, levelsDeep);
+                }
+                else
+                {
+                    toTry.height = 0;
+                    toTry.width = 0;
+                    return toTry;
+                }
+            }
+
+
+            if (unconnectedRooms.Any())
+            {
+                foreach (dungeonRoom d in unconnectedRooms)
+                {
+                    if(doTheyOverlap(toTry, d))
                     {
                         levelsDeep++;
                         if (levelsDeep < listOfEmptyCoords.Count)
@@ -113,15 +140,19 @@ namespace DungeonGen1
                             toTry.upperleftX = listOfEmptyCoords[levelsDeep].X;
                             toTry.upperleftY = listOfEmptyCoords[levelsDeep].Y;
                             toTry = validator(toTry, currMap, levelsDeep);
+                            return toTry;
                         }
                         else
                         {
-                           toTry.height = 0;
-                           toTry.width = 0;
+                            toTry.height = 0;
+                            toTry.width = 0;
+                            return toTry;
                         }
                     }
                 }
+              
             }
+
             return toTry;
         }
         /// <summary>
@@ -154,9 +185,13 @@ namespace DungeonGen1
             {
                 for (int x = room.upperleftX; x <= room.upperleftX + room.width; x++)
                 {
-                    currMap[x, y].exists = 1;
+                    if (isInRange(x,y,currMap))
+                    {
+                        currMap[x, y].exists = 1;
+                    }
                 }
             }
+            unconnectedRooms.Add(room);
             return currMap;
         }
 
@@ -234,7 +269,32 @@ namespace DungeonGen1
         {
             
         }
-
-
+        private mapTile [,] roomConnector(dungeonRoom connectedRoom, dungeonRoom unconnectedRoom)
+        {
+            return null;
+        }
+        private bool doTheyOverlap(dungeonRoom candidateRoom, dungeonRoom existingRoom)
+        {
+            
+            int CandidateLeftX = candidateRoom.upperleftX;
+            int CandidateRightX = candidateRoom.upperleftX + candidateRoom.width;
+            int CandidateTopY = candidateRoom.upperleftY;
+            int CandidateBottomY = candidateRoom.upperleftY + candidateRoom.height;
+            int existingLeftX = existingRoom.upperleftX;
+            int existingRightX = existingRoom.upperleftX + existingRoom.width;
+            int existingTopY = existingRoom.upperleftY;
+            int existingBottomY = existingRoom.upperleftY + existingRoom.height;
+            // a left side of one room is to the right of the right side of another.
+            if (CandidateLeftX > 1+ existingRightX || existingLeftX> 1+ CandidateRightX )
+            {
+                return false;
+            }
+            // a bottom side of a is above a top side of b
+            if(CandidateBottomY + 1 < existingTopY || existingBottomY + 1< CandidateTopY)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

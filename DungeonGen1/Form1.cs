@@ -29,7 +29,7 @@ namespace DungeonGen1
 
             dunGen = new generator();
             
-            dungeonFinal = dunGen.testMap(60,60);
+            dungeonFinal = dunGen.testMap(20,20, 3);
             dungeonFinal = dunGen.planRooms(dungeonFinal, 5);
             Bitmap finalBitmap = dunGen.Draw(dungeonFinal, 20);
             pictureBox1.Image = finalBitmap;
