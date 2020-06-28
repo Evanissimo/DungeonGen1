@@ -3,19 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace DungeonGen1
 {
-    class magicItems : placeableEntity
+    class magicItems 
     {
-        public override void decidePlace()
+        public magicItems(string name)
         {
-            throw new NotImplementedException();
+            this.name = name;
         }
-
-        public override void place(int x, int y, char marker)
+        string name;
+        char marker;
+        public Point DeterminePlace(dungeonRoom room, mapTile[,] currentMap)
         {
-            throw new NotImplementedException();
+            for(int y = room.upperleftY; y< room.upperleftY + room.height; y++)
+            {
+                for(int x = room.upperleftX; x < room.upperleftX+ room.width; x++)
+                {
+                    if(currentMap[x,y].contents.Equals(' '))
+                    {
+                        Point toGo = new Point(x, y);
+                        return toGo;
+                    }
+                }
+            }
+            return new Point (-1,-1);
         }
     }
 }
